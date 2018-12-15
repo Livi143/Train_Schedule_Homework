@@ -33,3 +33,88 @@ Users from many different machines must be able to view same train times.
 
 // no
 Styling and theme are completely up to you. Get Creative!*/
+
+console.log("app js is running");
+
+//========================================
+
+
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyA-ptKxkGkn1D6swndU_6klqTRfzgI_lPc",
+    authDomain: "timers-8245e.firebaseapp.com",
+    databaseURL: "https://timers-8245e.firebaseio.com",
+    projectId: "timers-8245e",
+    storageBucket: "timers-8245e.appspot.com",
+    messagingSenderId: "1010113102235"
+  };
+  firebase.initializeApp(config);
+
+  
+
+var database=firebase.database();
+
+$("#addTrainBtn").on("click",function(event){
+    event.preventDefault();
+    var trainNameInput= $("#trainNameInput").val().trim();
+    var destinationInput= $("#destinationInput").val().trim();
+    var firstTrainInput= $("#firstTrainInput").val().trim();
+    var frequencyInput= $("#frequencyInput").val().trim();
+    var trainObject={
+      name: trainNameInput,
+      destination: destinationInput,
+      firstTime:firstTrainInput,
+      frequency:frequencyInput
+    };
+    // push the object to database
+    database.ref().push(trainObject);
+});
+
+database.ref().on("child_added",function(childSnapshot){
+  console.log(childSnapshot.val());
+  var trainDestination = childSnapshot.val().destination;
+  var trainTime= childSnapshot.val().firstTime;
+  var trainFrequency = childSnapshot.val().frequency;
+  var trainName = childSnapshot.val().name;
+    // Calculate the total billed rate
+   
+  // helps to apply the rest of the code with dif names  
+  var tFrequency= trainFrequency;
+  var firstTime= moment(trainTime,"HH:mm").subtract(1,"years");
+  var currentTime=moment();
+  console.log("current time: "+moment(currentTime).format("hh:mm"));
+  var difTime=moment().diff(moment(firstTime),"minutes");
+  console.log("the time difference is: "+ difTime);
+  var timeRemainder=difTime%tFrequency;
+  console.log("the time remaining until next train is: "+timeRemainder);
+  var minutesTilNextTrain=tFrequency-timeRemainder;
+  console.log("minutes til next train is: "+minutesTilNextTrain);
+  var nextTrainTime = moment().add(minutesTilNextTrain,"minutes").format("HH:mm");
+  console.log(nextTrainTime);
+
+
+
+
+
+
+  // append cal values into table
+  
+    // Create the new row
+    var newRow = $("<tr>").append(
+      $("<td>").text(trainName),
+      $("<td>").text(trainDestination),
+      $("<td>").text(trainFrequency),
+      $("<td>").text(nextTrainTime),
+      $("<td>").text(minutesTilNextTrain),
+  
+      );
+  
+    // Append the new row to the table
+    $("#trainTable > tbody").append(newRow);
+});
+
+
+
+
+
+
